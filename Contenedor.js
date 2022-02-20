@@ -1,29 +1,108 @@
 import fs, { stat } from 'node:fs'
+import { config_db } from './config/database.js'
+import knex from "knex";
+
+
+class Database {
+    static client;
+    constructor(knex_options) {
+        if (Database.client) {
+            //console.log(Database.client)
+            this.client = Database.client;
+        } else {
+            Database.client = knex(knex_options);
+            this.client = Database.client;
+        }
+    }
+}
 
 class Contenedor {
 
-    constructor(fileName) {
+    
+
+    static db_knex
+
+    constructor(knex_options, table_name, fileName) {
+
         this.fileName = fileName
+        this.knex_options = knex_options
+        this.table_name = table_name
+
+        this.db_knex = new Database(knex_options).client
+
+        //this.createTableProducts()
+        //this.createTableMessages()
     }
 
-    /**
-     * Métodoque busca el id máximo en el arhivo indicado.
-     * @returns 
-     */
-    async getMaxid(){
+    insert = async (table_name, data) => {
         try {
-            const stats = await fs.promises.stat(this.fileName)
-            let res = 0
-
-            if(stats.size){
-                const productos = await this.getAll()
-                // Initial values object with id:0 for empty array case.
-                const max = productos.reduce((a,b) => a.id > b.id ? a:b, {id: 0} )
-                res = max.id
+            let response = {}
+            let existsTable = await this.db_knex.schema.hasTable(table_name);
+            if ( existsTable ) {
+                response = await this.db_knex.from(table_name).insert(data);
+                console.log(response);
+                console.table(await this.db_knex.from(table_name))
             } else {
-                console.log("getMaxId: ARCHIVO VACIO")
+                console.log("TABLE DONT EXISTS " + table_name)
             }
-            return res
+            
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async createTableProducts() {
+        try {
+            let existeTabla = await this.db_knex.schema.hasTable("products");
+            if (!existeTabla) {
+                await this.db_knex.schema.createTable("products", table => {
+                    table.bigincrements("id").primary(),
+                        table.string("title"),
+                        table.float("price"),
+                        table.string("thumbnail")
+                });
+                console.table(await this.db_knex.from("products"))
+            } else {
+                console.log(`Esta tabla ya existe: products`);
+                console.table(await this.db_knex.from("products"))
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async createTableMessages() {
+        try {
+            let existeTabla = await this.db_knex.schema.hasTable("messages");
+            if (!existeTabla) {
+                await this.db_knex.schema.createTable("messages", table => {
+                    table.increments("id").primary(),
+                        table.string("author"),
+                        table.string("date"),
+                        table.string("text")
+                });
+                console.table(await this.db_knex.from("messages"))
+            } else {
+                console.log(`Esta tabla ya existe: messages`);
+                console.table(await this.db_knex.from("messages"))
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+
+
+
+
+    /**
+    * Métodoque busca el id máximo en el arhivo indicado.
+    * @returns 
+    */
+    async getMaxid() {
+        try {
+            let max_id = await this.db_knex.from(this.table_name).max('id')
+            return Object.values(max_id[0])[0]
 
         } catch (error) {
             console.log(error)
@@ -35,19 +114,19 @@ class Contenedor {
      * @param {*} obj 
      * @returns 
      */
-    async save( obj ) {
+    async save(obj) {
 
         try {
-            const productos = await this.getAll()
-            const max = await this.getMaxid()
-            productos.push({...obj, id: max + 1})
-            await fs.promises.writeFile(this.fileName, JSON.stringify(productos, null, 2))
-            return max + 1
+            let max_id  = await this.getMaxid()
+            obj.id = Number(max_id) + 1
+            await this.insert(this.table_name, obj)
+            console.log(await this.getAll())
+            return max_id + 1
 
         } catch (error) {
             console.log("Error en save method: " + error)
         }
-        
+
     }
 
     /**
@@ -55,20 +134,11 @@ class Contenedor {
      * @param {*} id 
      * @returns 
      */
-    async getById( id ) {
+    async getById(id) {
         try {
-            const stats = await fs.promises.stat(this.fileName)
-            let res = null
+            let res = await this.db_knex.from(this.table_name).where('id', id)
+            return res.length ? res[0] : null
 
-            if(stats.size) {
-                const productos = await this.getAll()
-                const prod = productos.find( prod => prod.id === id)
-                prod ? res = prod: res = null
-            } else {
-                console.log("getById: ARCHIVO VACIO")
-            }
-            return res
-            
         } catch (error) {
             console.log(error)
         }
@@ -80,19 +150,12 @@ class Contenedor {
      */
     async getAll() {
         try {
-            const stats = await fs.promises.stat(this.fileName)
-            let res = []
-
-            if( stats.size ) {
-                res = JSON.parse( await fs.promises.readFile(this.fileName, 'utf-8'))
-            } else {
-                console.log("getAll: ARCHIVO VACIO")
-            }
-
+            let res  = await this.db_knex.from(this.table_name)
+            console.log(res)
             return res
 
         } catch (error) {
-            console.log(error)            
+            console.log(error)
         }
     }
 
@@ -100,12 +163,12 @@ class Contenedor {
      * Método que elimina del archivo el objeto indicado en el parametro ID
      * @param {*} id 
      */
-    async deleteById( id ) {
+    async deleteById(id) {
 
         try {
             const productos = await this.getAll()
-            await fs.promises.writeFile(this.fileName, JSON.stringify(productos.filter( prod => prod.id !== id), null, 2))
-                        
+            await fs.promises.writeFile(this.fileName, JSON.stringify(productos.filter(prod => prod.id !== id), null, 2))
+
         } catch (error) {
             console.log(error)
         }
@@ -117,7 +180,7 @@ class Contenedor {
      */
     async deleteAll() {
         try {
-            await fs.promises.writeFile(this.fileName, JSON.stringify([], null, 2))            
+            await fs.promises.writeFile(this.fileName, JSON.stringify([], null, 2))
         } catch (error) {
             console.log(error)
         }
@@ -128,13 +191,13 @@ class Contenedor {
         try {
             const productos = await this.getAll()
             let index = productos.findIndex(prod => prod.id == id)
-            if ( index >= 0) {
+            if (index >= 0) {
                 prod.id = id
                 productos[index] = prod
                 await fs.promises.writeFile(this.fileName, JSON.stringify(productos))
-            }  
+            }
         } catch (error) {
-            console.log(error)   
+            console.log(error)
         }
     }
 
