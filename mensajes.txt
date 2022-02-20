@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "author": "CharlyGarcia@gmail.com",
+    "date": "26/1/2022 08:33:30",
+    "text": "¡Hola! ¿Que tal?"
+  },
+  {
+    "id": 2,
+    "author": "PedroAznar@hotmail.com",
+    "date": "26/1/2022 08:34:30",
+    "text": "¡Muy bien! ¿Y vos?"
+  },
+  {
+    "id": 3,
+    "author": "GustavoCerati59@live.com",
+    "date": "26/1/2022 08:36:30",
+    "text": "¡Genial!"
+  },
+  {
+    "author": "echevalier@gmail.com",
+    "date": "26/1/2022 19:22:36",
+    "text": "Hola a todos!!!! ¿Como estan?",
+    "id": 4
+  }
+]

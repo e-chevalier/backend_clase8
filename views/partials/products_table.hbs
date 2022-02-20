@@ -1,0 +1,32 @@
+{{!-- products_table.hbs --}}
+<div class="container bg-light mb-3">
+    <h3 class="fs-2 text-primary my-4 py-4"> Lista de productos</h3>
+
+    {{#if isEmpty}}
+        <p class="p-3 mb-2 bg-warning text-dark">No se encontraron productos.</p>
+    {{else}}
+        <table class="table table-dark table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">Foto</th>
+                </tr>
+            </thead>
+            <tbody id="productsTable">
+                {{!--
+                    {{#each productos}}
+                    <tr>
+                        <td>{{this.title}}</td>
+                        <td>${{this.price}}</td>
+                        <td><img src="{{this.thumbnail}}" alt="{{this.title}}" width="32" height="32" /></td>
+                    </tr>
+                    {{/each}}
+                --}}
+            </tbody>
+        </table>
+    {{/if}}
+</div>
+
+
+

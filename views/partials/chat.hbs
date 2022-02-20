@@ -1,0 +1,38 @@
+{{!-- chat.hbs --}}
+
+<div class="container bg-light mb-3">
+    <div class="fs-1 text-primary">Centro de Mensajes</div>
+    <div class="my-2 py-2">
+        <form>
+            <div class="mb-3">
+                <label for="author" class="form-label">Autor :</label>
+                <input type="email" name="author" class="form-control" id="author" aria-describedby="authorHelp"
+                    placeholder="sophie@example.com" required>
+                <div class="valid-feedback">
+                    Parece correcto!
+                </div>
+                <div class="invalid-feedback">
+                    Por favor ingresa un email correcto.
+                </div>
+
+            </div>
+            <hr>
+            <div class="py-2 my-2" id="lastMessage"></div>
+
+            <div class="mb-3">
+                <label for="message" class="form-label">Mensaje :</label>
+                <input type="text" name="message" class="form-control" id="message" aria-describedby="messageHelp"
+                    required>
+                <div class="valid-feedback">
+                    Parece correcto!
+                </div>
+                <div class="invalid-feedback">
+                    Por favor ingresa un mensaje.
+                </div>
+            </div>
+
+            <button id="btnChat_submit" class="btn btn-primary" type="submit" disabled>Enviar</button>
+        </form>
+
+    </div>
+</div>

@@ -1,0 +1,21 @@
+{{!-- form.hbs --}}
+
+<div class="container bg-light mb-3">
+    <h3 class="fs-2 text-primary my-4 py-4"> Ingrese Producto </h3>
+
+    <form action="/productos" method="post">
+        <div class="mb-3">
+            <label for="title" class="form-label">Nombre</label>
+            <input type="text" class="form-control" name="title" id="title" aria-describedby="titleHelp">
+        </div>
+        <div class="mb-3">
+            <label for="price" class="form-label">Precio</label>
+            <input type="number" class="form-control" name="price" id="price" step=".01">
+        </div>
+        <div class="mb-3">
+            <label for="thumbnail" class="form-label">Foto URL</label>
+            <input type="thumbnail" class="form-control" name="thumbnail" id="thumbnail">
+        </div>
+        <button id="btnForm_submit" type="submit" class="btn btn-primary">Enviar</button>
+    </form>
+</div>
