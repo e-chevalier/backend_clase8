@@ -21,9 +21,8 @@ class Contenedor {
 
     static db_knex
 
-    constructor(knex_options, table_name, fileName) {
+    constructor(knex_options, table_name) {
 
-        this.fileName = fileName
         this.knex_options = knex_options
         this.table_name = table_name
 

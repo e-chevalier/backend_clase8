@@ -133,7 +133,7 @@ let dataProductos = [
     }
 ]
 
-const contenedorProductos = new Contenedor(config_db.sqlite3, "products", 'productos.txt')
+const contenedorProductos = new Contenedor(config_db.sqlite3, "products")
 await contenedorProductos.createTableProducts()
 await contenedorProductos.insert('products', dataProductos)
 const products = await contenedorProductos.getAll()
@@ -141,7 +141,7 @@ const products = await contenedorProductos.getAll()
 //console.log(await contenedorProductos.deleteById(2))
 
 
-const contenedorMensajes = new Contenedor(config_db.sqlite3, "messages", 'mensajes.txt')
+const contenedorMensajes = new Contenedor(config_db.sqlite3, "messages")
 await contenedorMensajes.createTableMessages()
 await contenedorMensajes.insert('messages', dataMessages)
 const messages = await contenedorMensajes.getAll()
