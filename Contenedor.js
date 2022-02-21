@@ -1,5 +1,4 @@
 import fs, { stat } from 'node:fs'
-import { config_db } from './config/database.js'
 import knex from "knex";
 
 
@@ -18,7 +17,7 @@ class Database {
 
 class Contenedor {
 
-    
+
 
     static db_knex
 
@@ -38,14 +37,13 @@ class Contenedor {
         try {
             let response = {}
             let existsTable = await this.db_knex.schema.hasTable(table_name);
-            if ( existsTable ) {
+            if (existsTable) {
                 response = await this.db_knex.from(table_name).insert(data);
-                console.log(response);
-                console.table(await this.db_knex.from(table_name))
+                //console.log(response);
             } else {
                 console.log("TABLE DONT EXISTS " + table_name)
             }
-            
+
         } catch (error) {
             console.log(error);
         }
@@ -61,10 +59,10 @@ class Contenedor {
                         table.float("price"),
                         table.string("thumbnail")
                 });
-                console.table(await this.db_knex.from("products"))
+                //console.table(await this.db_knex.from("products"))
             } else {
                 console.log(`Esta tabla ya existe: products`);
-                console.table(await this.db_knex.from("products"))
+                //console.table(await this.db_knex.from("products"))
             }
         } catch (error) {
             console.log(error);
@@ -81,10 +79,10 @@ class Contenedor {
                         table.string("date"),
                         table.string("text")
                 });
-                console.table(await this.db_knex.from("messages"))
+                //console.table(await this.db_knex.from("messages"))
             } else {
                 console.log(`Esta tabla ya existe: messages`);
-                console.table(await this.db_knex.from("messages"))
+                //console.table(await this.db_knex.from("messages"))
             }
         } catch (error) {
             console.log(error);
@@ -117,10 +115,10 @@ class Contenedor {
     async save(obj) {
 
         try {
-            let max_id  = await this.getMaxid()
+            let max_id = await this.getMaxid()
             obj.id = Number(max_id) + 1
             await this.insert(this.table_name, obj)
-            console.log(await this.getAll())
+            console.table(await this.db_knex.from(this.table_name))
             return max_id + 1
 
         } catch (error) {
@@ -150,8 +148,7 @@ class Contenedor {
      */
     async getAll() {
         try {
-            let res  = await this.db_knex.from(this.table_name)
-            console.log(res)
+            let res = await this.db_knex.from(this.table_name)
             return res
 
         } catch (error) {
@@ -166,8 +163,9 @@ class Contenedor {
     async deleteById(id) {
 
         try {
-            const productos = await this.getAll()
-            await fs.promises.writeFile(this.fileName, JSON.stringify(productos.filter(prod => prod.id !== id), null, 2))
+            let response = await this.db_knex.from(this.table_name).where("id", "=", id).del()
+            //console.table(await this.db_knex.from(this.table_name))
+            return response
 
         } catch (error) {
             console.log(error)
@@ -180,7 +178,9 @@ class Contenedor {
      */
     async deleteAll() {
         try {
-            await fs.promises.writeFile(this.fileName, JSON.stringify([], null, 2))
+            let response = await this.db_knex.from(this.table_name).del()
+            //console.table(await this.db_knex.from(this.table_name))
+            return response
         } catch (error) {
             console.log(error)
         }
@@ -189,13 +189,9 @@ class Contenedor {
 
     async updateById(id, prod) {
         try {
-            const productos = await this.getAll()
-            let index = productos.findIndex(prod => prod.id == id)
-            if (index >= 0) {
-                prod.id = id
-                productos[index] = prod
-                await fs.promises.writeFile(this.fileName, JSON.stringify(productos))
-            }
+            let response = await this.db_knex.from(this.table_name).where("id", "=", id).update(prod)
+            console.table(await this.db_knex.from(this.table_name))
+            return response
         } catch (error) {
             console.log(error)
         }
