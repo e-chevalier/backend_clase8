@@ -3,14 +3,27 @@ import knex from "knex";
 
 
 class Database {
-    static client;
+    static clientMysql;
+    static clientSqlite3;
+
     constructor(knex_options) {
-        if (Database.client) {
-            //console.log(Database.client)
-            this.client = Database.client;
+        console.log(knex_options.client)
+        if (knex_options.client === 'mysql') {
+            if (Database.clientMysql) {
+                //console.log(Database.client)
+                this.clientMysql = Database.clientMysql;
+            } else {
+                Database.clientMysql = knex(knex_options);
+                this.clientMysql = Database.clientMysql;
+            }
         } else {
-            Database.client = knex(knex_options);
-            this.client = Database.client;
+            if (Database.clientSqlite3) {
+                //console.log(Database. clientSqlite3)
+                this.clientSqlite3 = Database.clientSqlite3;
+            } else {
+                Database.clientSqlite3 = knex(knex_options);
+                this.clientSqlite3 = Database.clientSqlite3;
+            }
         }
     }
 }
@@ -26,7 +39,7 @@ class Contenedor {
         this.knex_options = knex_options
         this.table_name = table_name
 
-        this.db_knex = new Database(knex_options).client
+        this.db_knex = knex_options.client === 'mysql' ? new Database(knex_options).clientMysql : new Database(knex_options).clientSqlite3
 
         //this.createTableProducts()
         //this.createTableMessages()
