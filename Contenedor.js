@@ -1,36 +1,7 @@
-import fs, { stat } from 'node:fs'
-import knex from "knex";
-
-
-class Database {
-    static clientMysql;
-    static clientSqlite3;
-
-    constructor(knex_options) {
-        console.log(knex_options.client)
-        if (knex_options.client === 'mysql') {
-            if (Database.clientMysql) {
-                //console.log(Database.client)
-                this.clientMysql = Database.clientMysql;
-            } else {
-                Database.clientMysql = knex(knex_options);
-                this.clientMysql = Database.clientMysql;
-            }
-        } else {
-            if (Database.clientSqlite3) {
-                //console.log(Database. clientSqlite3)
-                this.clientSqlite3 = Database.clientSqlite3;
-            } else {
-                Database.clientSqlite3 = knex(knex_options);
-                this.clientSqlite3 = Database.clientSqlite3;
-            }
-        }
-    }
-}
+import { Database } from './config/database.js'
+import { dataMessages, dataProducts } from './config/mockups_data.js'
 
 class Contenedor {
-
-
 
     static db_knex
 
@@ -38,14 +9,11 @@ class Contenedor {
 
         this.knex_options = knex_options
         this.table_name = table_name
-
         this.db_knex = knex_options.client === 'mysql' ? new Database(knex_options).clientMysql : new Database(knex_options).clientSqlite3
-
-        //this.createTableProducts()
-        //this.createTableMessages()
+    
     }
 
-    insert = async (table_name, data) => {
+    insertData = async (table_name, data) => {
         try {
             let response = {}
             let existsTable = await this.db_knex.schema.hasTable(table_name);
@@ -61,48 +29,43 @@ class Contenedor {
         }
     }
 
-    async createTableProducts() {
+    createTableProducts = async () => {
         try {
-            let existeTabla = await this.db_knex.schema.hasTable("products");
-            if (!existeTabla) {
+            let existsTable = await this.db_knex.schema.hasTable("products");
+            if (!existsTable) {
                 await this.db_knex.schema.createTable("products", table => {
                     table.bigincrements("id").primary(),
                         table.string("title"),
                         table.float("price"),
                         table.string("thumbnail")
                 });
-                //console.table(await this.db_knex.from("products"))
+                await this.insertData('products', dataProducts)
             } else {
-                console.log(`Esta tabla ya existe: products`);
-                //console.table(await this.db_knex.from("products"))
+                console.log(`Esta tabla ya existe: products`)
             }
         } catch (error) {
-            console.log(error);
+            console.log(error)
         }
     }
 
-    async createTableMessages() {
+    createTableMessages = async () => {
         try {
-            let existeTabla = await this.db_knex.schema.hasTable("messages");
-            if (!existeTabla) {
+            let existsTable = await this.db_knex.schema.hasTable("messages");
+            if (!existsTable) {
                 await this.db_knex.schema.createTable("messages", table => {
                     table.increments("id").primary(),
                         table.string("author"),
                         table.string("date"),
                         table.string("text")
                 });
-                //console.table(await this.db_knex.from("messages"))
+                await this.insertData('messages', dataMessages)
             } else {
-                console.log(`Esta tabla ya existe: messages`);
-                //console.table(await this.db_knex.from("messages"))
+                console.log(`Esta tabla ya existe: messages`)
             }
         } catch (error) {
-            console.log(error);
+            console.log(error)
         }
     }
-
-
-
 
 
     /**
@@ -129,7 +92,7 @@ class Contenedor {
         try {
             let max_id = await this.getMaxid()
             obj.id = Number(max_id) + 1
-            await this.insert(this.table_name, obj)
+            await this.insertData(this.table_name, obj)
             console.table(await this.db_knex.from(this.table_name))
             return max_id + 1
 
